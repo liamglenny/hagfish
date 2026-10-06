@@ -1,8 +1,14 @@
-# Limine C Template
+# hagfish
 
-This repository will demonstrate how to set up a basic kernel in C using Limine.
+My very own operating system based on limine-c-template from the Limine bootloader.
 
-## How to use this?
+## Why?
+
+Because.
+
+## How to build this?
+
+Thank goodness for the fork feature on github! The stuff below is the info on building limine-c-template, incorporating modifications I made to the makefile. This may not be kept up to date... Mostly because I have no idea what I'm doing.
 
 ### Dependencies
 
@@ -12,7 +18,7 @@ It is recommended to build this project using a standard UNIX-like system, using
 
 Building also requires `git`, used to fetch the kernel's dependencies (see `kernel/get-deps`), `curl`, used to download the Limine release and the EDK2 OVMF firmware images, and a C compiler for the host (`cc` by default, see the `HOST_CC` `make` variable), used to build the `limine` host utility.
 
-Additionally, building an ISO with `make all` requires `xorriso`, and building a HDD/USB image with `make all-hdd` requires `sgdisk` (usually from `gdisk` or `gptfdisk` packages) and `mtools`.
+Additionally, building an ISO with `make iso` requires `xorriso`, and building a HDD/USB image with `make img` requires `sgdisk` (usually from `gdisk` or `gptfdisk` packages) and `mtools`.
 
 Assembly files with the `*.S` extension are built using the same toolchain as the C sources. Only `*.asm` files, which are built for `x86_64` alone and of which the template ships none, require `nasm`. The `run` targets require `qemu`.
 
@@ -44,12 +50,12 @@ The default `ARCH` is `x86_64`. Other options include: `aarch64`, `loongarch64`,
 
 ### Makefile targets
 
-Running `make all` will compile the kernel (from the `kernel/` directory) and then generate a bootable ISO image.
+Running `make iso` will compile the kernel (from the `kernel/` directory) and then generate a bootable ISO image.
 
-Running `make all-hdd` will compile the kernel and then generate a raw image suitable to be flashed onto a USB stick or hard drive/SSD.
+Running `make img` will compile the kernel and then generate a raw image suitable to be flashed onto a USB stick or hard drive/SSD.
 
-Running `make run` will build the kernel and a bootable ISO (equivalent to make all) and then run it using `qemu` (if installed).
+Running `make run-iso` will build the kernel and a bootable ISO (equivalent to make all) and then run it using `qemu` (if installed).
 
-Running `make run-hdd` will build the kernel and a raw HDD image (equivalent to make all-hdd) and then run it using `qemu` (if installed).
+Running `make run-img` will build the kernel and a raw HDD image (equivalent to make all-hdd) and then run it using `qemu` (if installed).
 
-For x86_64, the `run-bios` and `run-hdd-bios` targets are equivalent to their non `-bios` counterparts except that they boot `qemu` using the default SeaBIOS firmware instead of OVMF.
+For x86_64, the `run-iso-bios` and `run-img-bios` targets are equivalent to their non `-bios` counterparts except that they boot `qemu` using the default SeaBIOS firmware instead of OVMF.

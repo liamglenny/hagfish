@@ -71,13 +71,13 @@ HOST_CPPFLAGS :=
 HOST_LDFLAGS :=
 HOST_LIBS :=
 
-.PHONY: all
-all: $(IMAGE_NAME).iso
+.PHONY: iso
+iso: $(IMAGE_NAME).iso
 
-.PHONY: all-hdd
-all-hdd: $(IMAGE_NAME).hdd
+.PHONY: img
+img: $(IMAGE_NAME).img
 
-.PHONY: run
+.PHONY: run-iso
 run: edk2-ovmf-bins $(IMAGE_NAME).iso
 	qemu-system-$(ARCH) \
 		$(QEMU_MACHINE_FLAGS) \
@@ -85,16 +85,16 @@ run: edk2-ovmf-bins $(IMAGE_NAME).iso
 		-cdrom $(IMAGE_NAME).iso \
 		$(QEMUFLAGS)
 
-.PHONY: run-hdd
-run-hdd: edk2-ovmf-bins $(IMAGE_NAME).hdd
+.PHONY: run-img
+run-hdd: edk2-ovmf-bins $(IMAGE_NAME).img
 	qemu-system-$(ARCH) \
 		$(QEMU_MACHINE_FLAGS) \
 		$(QEMU_UEFI_FLAGS) \
-		-hda $(IMAGE_NAME).hdd \
+		-hda $(IMAGE_NAME).img \
 		$(QEMUFLAGS)
 
 ifeq ($(ARCH),x86_64)
-.PHONY: run-bios
+.PHONY: run-iso-bios
 run-bios: $(IMAGE_NAME).iso
 	qemu-system-$(ARCH) \
 		$(QEMU_MACHINE_FLAGS) \
@@ -102,11 +102,11 @@ run-bios: $(IMAGE_NAME).iso
 		-boot d \
 		$(QEMUFLAGS)
 
-.PHONY: run-hdd-bios
-run-hdd-bios: $(IMAGE_NAME).hdd
+.PHONY: run-img-bios
+run-hdd-bios: $(IMAGE_NAME).img
 	qemu-system-$(ARCH) \
 		$(QEMU_MACHINE_FLAGS) \
-		-hda $(IMAGE_NAME).hdd \
+		-hda $(IMAGE_NAME).img \
 		$(QEMUFLAGS)
 endif
 
@@ -160,28 +160,28 @@ ifeq ($(ARCH),x86_64)
 endif
 	rm -rf iso_root
 
-$(IMAGE_NAME).hdd: limine-binary/limine kernel
-	rm -f $(IMAGE_NAME).hdd
-	dd if=/dev/null bs=1024k seek=$(HDD_SIZE) of=$(IMAGE_NAME).hdd
-	PATH=$$PATH:/usr/sbin:/sbin sgdisk $(IMAGE_NAME).hdd -n 1:$(HDD_PART_START):$(HDD_PART_END) -t 1:ef00 $(SGDISK_MBR_FLAGS)
+$(IMAGE_NAME).img: limine-binary/limine kernel
+	rm -f $(IMAGE_NAME).img
+	dd if=/dev/null bs=1024k seek=$(HDD_SIZE) of=$(IMAGE_NAME).img
+	PATH=$$PATH:/usr/sbin:/sbin sgdisk $(IMAGE_NAME).img -n 1:$(HDD_PART_START):$(HDD_PART_END) -t 1:ef00 $(SGDISK_MBR_FLAGS)
 ifeq ($(ARCH),x86_64)
-	./limine-binary/limine bios-install $(IMAGE_NAME).hdd
+	./limine-binary/limine bios-install $(IMAGE_NAME).img
 endif
-	mformat -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) -T $(HDD_PART_SECTORS) -h $(HDD_HEADS) -s $(HDD_SECTORS_PER_TRACK) ::
-	mmd -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) ::/EFI ::/EFI/BOOT ::/boot ::/boot/limine
-	mcopy -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) kernel/bin-$(ARCH)/kernel ::/boot
-	mcopy -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) limine.conf ::/boot/limine
+	mformat -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) -T $(HDD_PART_SECTORS) -h $(HDD_HEADS) -s $(HDD_SECTORS_PER_TRACK) ::
+	mmd -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) ::/EFI ::/EFI/BOOT ::/boot ::/boot/limine
+	mcopy -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) kernel/bin-$(ARCH)/kernel ::/boot
+	mcopy -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) limine.conf ::/boot/limine
 ifeq ($(ARCH),x86_64)
-	mcopy -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) limine-binary/limine-bios.sys ::/boot/limine
+	mcopy -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) limine-binary/limine-bios.sys ::/boot/limine
 endif
-	mcopy -i $(IMAGE_NAME).hdd@@$(HDD_PART_OFFSET) $(addprefix limine-binary/,$(LIMINE_EFI)) ::/EFI/BOOT
+	mcopy -i $(IMAGE_NAME).img@@$(HDD_PART_OFFSET) $(addprefix limine-binary/,$(LIMINE_EFI)) ::/EFI/BOOT
 
 .PHONY: clean
 clean:
 	$(MAKE) -C kernel clean
-	rm -rf iso_root $(IMAGE_NAME).iso $(IMAGE_NAME).hdd
+	rm -rf iso_root $(IMAGE_NAME).iso $(IMAGE_NAME).img
 
 .PHONY: distclean
 distclean:
 	$(MAKE) -C kernel distclean
-	rm -rf iso_root *.iso *.hdd limine-binary limine-binary.tar.gz edk2-ovmf-bins edk2-ovmf-bins.tar.gz
+	rm -rf iso_root *.iso *.img limine-binary limine-binary.tar.gz edk2-ovmf-bins edk2-ovmf-bins.tar.gz
