@@ -3,5 +3,6 @@
 /edk2-ovmf-bins
 /edk2-ovmf-bins.tar.gz
 /iso_root
+/.vscode
 *.iso
-*.hdd
+*.img
