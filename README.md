@@ -8,7 +8,7 @@ Because.
 
 ## How to build this?
 
-Thank goodness for the fork feature on github! The stuff below is the info on building limine-c-template, incorporating modifications I made to the makefile. This may not be kept up to date... Mostly because I have no idea what I'm doing.
+Thank goodness for the fork feature on GitHub! The stuff below is the info on building `limine-c-template`, incorporating modifications I made to the makefile. This may not be kept up to date... Mostly because I have no idea what I'm doing. I currently am targeting `make img`, the iso option may be removed in the future.
 
 ### Dependencies
 
